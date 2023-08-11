@@ -15,8 +15,11 @@ app.use(WeatherRouter)
 getClient()
 // i am commiting this code
 connectDB()
-  .then(() => {console.log('App started on port')
-  app.listen(variables.port)}).catch((e) => {console.log(e)
+  .then(() => {
+console.log('App started on port')
+  app.listen(variables.port)
+}).catch((e) => {
+console.log(e)
     console.log('error in connecting db app not started')
   })
 
