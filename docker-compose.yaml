@@ -1,0 +1,63 @@
+version: '3'
+services:
+    # backend:
+    #   build: .
+    #   ports:
+    #     - "7000:7000"
+    #   links:
+    #     - mongodb
+    #     - influxdb
+    #   depends_on:
+    #     - mongodb
+    #     - influxdb
+    #   environment:
+    #     - MONGOURI=mongodb
+    #     - PORT=7000
+    #     - INFLUX_TOKEN=UqYKZWIZ9nKja-_d1I1KGBOXT7YbOEHg3CxN0NVupyQqHZwuGbRw6rmMHkZNhuzbGLTEH1ScnKGnnopqLzCa9A==
+    #     - INFLUX_URL=http://influxdb:8086
+    #     - INFLUX_ORG=myorg
+    #     - INFLUX_PORT=8086
+    #     - INFLUX_BUCKET=weather
+
+  vernemq:
+    container_name: vernemq
+    env_file: ./.env
+    image: vernemq/vernemq
+    ports:
+      - '${VERNE_WS_PORT}:8080'
+      - '${VERNE_MQTT_PORT}:1883'
+      - '${VERNE_ADMIN_PORT}:8888'
+    environment:
+      - DOCKER_VERNEMQ_ACCEPT_EULA=yes
+      - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
+      - DOCKER_VERNEMQ_LISTENER.tcp.allowed_protocol_versions=3,4,5
+      - DOCKER_VERNEMQ_LISTENER.ws.allowed_protocol_versions=3,4,5
+      - DOCKER_VERNEMQ_LISTENER.wss.allowed_protocol_versions=3,4,5
+
+  mongodb:
+    image: mongo:latest
+    env_file: ./.env
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "${MONGO_PORT}:27017"
+  influxdb:
+    image: influxdb:2.0
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - ./data:/var/lib/influxdb2
+      - ./config2:/etc/influxdb2
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=cowlar
+      - DOCKER_INFLUXDB_INIT_PASSWORD=cowlar123456
+      - DOCKER_INFLUXDB_INIT_ORG=myorg
+      - DOCKER_INFLUXDB_INIT_BUCKET=weather
+      - DOCKER_INFLUXDB_INIT_RETENTION=1w
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=UqYKZWIZ9nKja-_d1I1KGBOXT7YbOEHg3CxN0NVupyQqHZwuGbRw6rmMHkZNhuzbGLTEH1ScnKGnnopqLzCa9A==
+
+volumes:
+  mongo-data:
+  influxdb_data:
